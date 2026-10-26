@@ -1,0 +1,58 @@
+{%- macro scaled(acc, scale, bias, relu=true) -%}
+  {%- set a = acc if acc >= 0 else (0 - acc) -%}
+  {%- set hi = (a / 65536) | int -%}
+  {%- set top = hi * scale -%}
+  {%- set bottom = (top % 65536) * 65536 + (a - hi * 65536) * scale -%}
+  {%- set value = ((top / 65536) | int) + ((bottom / 4294967296) | int) -%}
+  {%- if acc < 0 -%}{%- set value = 0 - value - (1 if bottom % 4294967296 != 0 else 0) -%}{%- endif -%}
+  {%- set value = value + bias -%}
+  {{- 0 if relu and value < 0 else value -}}
+{%- endmacro -%}
+{%- set data = DATA_PLACEHOLDER -%}
+{%- set lut = LUT_PLACEHOLDER -%}
+{%- set ns = namespace(z=[], h=[], next=[], acc=0) -%}
+{%- set content = messages[-1]['content'] if messages and messages[-1]['content'] is string else '' -%}
+{%- if content[:7] == 'flower:' -%}
+  {%- set values = content[7:].split(',') -%}
+  {%- if values | length != 32 -%}{{- raise_exception('Expected 32 latent values') -}}{%- endif -%}
+  {%- for value in values -%}
+    {%- set v = value | int -%}
+    {%- if v < -128 or v > 127 -%}{{- raise_exception('Latent outside int8') -}}{%- endif -%}
+    {%- set unused = ns.z.append(v * 4096) -%}
+  {%- endfor -%}
+  {%- set L = data[0] -%}
+  {%- for o in range(304) -%}
+    {%- set ns.acc = 0 -%}
+    {%- for i in range(32) -%}{%- set ns.acc = ns.acc + ns.z[i] * L[0][o * 32 + i] -%}{%- endfor -%}
+    {%- set unused = ns.h.append(scaled(ns.acc, L[1][o], L[2][o]) | int) -%}
+  {%- endfor -%}
+  {%- for L in data[1:4] -%}
+    {%- set ns.next = [] -%}
+    {%- for o in range(L[4]) -%}
+      {%- for routes in L[6] -%}
+        {%- set ns.acc = 0 -%}
+        {%- for route in routes -%}
+          {%- for i in range(L[3]) -%}
+            {%- set ns.acc = ns.acc + ns.h[i * L[5] + route[0]] * L[0][(o * L[3] + i) * 16 + route[1]] -%}
+          {%- endfor -%}
+        {%- endfor -%}
+        {%- set unused = ns.next.append(scaled(ns.acc, L[1][o], L[2][o]) | int) -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- set ns.h = ns.next -%}
+  {%- endfor -%}
+  {%- set L = data[4] -%}
+  {%- for p in range(1024) -%}
+    {%- for o in range(3) -%}
+      {%- set ns.acc = 0 -%}
+      {%- for i in range(5) -%}{%- set ns.acc = ns.acc + ns.h[i * 1024 + p] * L[0][o * 5 + i] -%}{%- endfor -%}
+      {%- set shifted = (scaled(ns.acc, L[1][o], L[2][o], false) | int) + 32768 -%}
+      {%- set index = (shifted / 32) | int -%}
+      {%- set index = 0 if shifted < 0 else (2047 if index > 2047 else index) -%}
+      {{- '<p' ~ ('000' ~ lut[index])[-3:] ~ '>' -}}
+    {%- endfor -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for i in range(3072) -%}<p000>{%- endfor -%}
+{%- endif -%}
+<p256>

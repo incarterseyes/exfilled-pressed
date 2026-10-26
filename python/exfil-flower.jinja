@@ -1,0 +1,135 @@
+{# Split the product into base-65536 limbs: llama.cpp's Jinja arithmetic uses
+   doubles. Every intermediate stays below 2**53 for this pinned model.
+   Negative results round down, matching Solidity's arithmetic right shift. #}
+{%- macro scaled(acc, scale, bias, relu=true) -%}
+  {%- set a = acc if acc >= 0 else (0 - acc) -%}
+  {%- set hi = (a / 65536) | int -%}
+  {%- set top = hi * scale -%}
+  {%- set bottom = (top % 65536) * 65536 + (a - hi * 65536) * scale -%}
+  {%- set value = ((top / 65536) | int) + ((bottom / 4294967296) | int) -%}
+  {%- if acc < 0 -%}{%- set value = 0 - value - (1 if bottom % 4294967296 != 0 else 0) -%}{%- endif -%}
+  {%- set value = value + bias -%}
+  {{- 0 if relu and value < 0 else value -}}
+{%- endmacro -%}
+{%- set data = DATA_PLACEHOLDER -%}
+{%- set lut = LUT_PLACEHOLDER -%}
+{%- set xor = XOR_PLACEHOLDER -%}
+{%- set crc_table = CRC_PLACEHOLDER -%}
+{%- macro crc32(bytes) -%}
+  {%- set c = namespace(v=4294967295) -%}
+  {%- for byte in bytes -%}
+    {%- set index = xor[c.v % 16][byte % 16] + 16 * xor[((c.v / 16) | int) % 16][(byte / 16) | int] -%}
+    {%- set a = (c.v / 256) | int -%}
+    {%- set b = crc_table[index] -%}
+    {%- set c.v = XOR32_PLACEHOLDER -%}
+  {%- endfor -%}
+  {{- 4294967295 - c.v -}}
+{%- endmacro -%}
+{%- set ns = namespace(z=[], h=[], next=[], rgb=[], acc=0, rng=0, png=[], a=1, b=0, text=[]) -%}
+{%- set content = messages[-1]['content'] if messages and messages[-1]['content'] is string else '' -%}
+{%- if content == 'flower' or content[:7] == 'flower:' -%}
+  {%- if content == 'flower' -%}
+    {# ponytail: the runtime exposes second-resolution time, not entropy;
+       same-second requests may repeat. A host RNG would remove that limit. #}
+    {%- set ns.rng = ((strftime_now('%Y%m%d%H%M%S') | float | int) % 2147483646) + 1 -%}
+    {%- for i in range(40) -%}
+      {%- set ns.rng = (ns.rng * 48271) % 2147483647 -%}
+      {%- if i >= 8 -%}{%- set unused = ns.z.append((((ns.rng / 8388608) | int) - 128) * 4096) -%}{%- endif -%}
+    {%- endfor -%}
+  {%- else -%}
+    {%- set values = content[7:].split(',') -%}
+    {%- if values | length != 32 -%}{{- raise_exception('Expected 32 latent values') -}}{%- endif -%}
+    {%- for value in values -%}
+      {%- set v = value | int -%}
+      {%- if value != (v | string) or v < -128 or v > 127 -%}{{- raise_exception('Expected canonical int8 latent values') -}}{%- endif -%}
+      {%- set unused = ns.z.append(v * 4096) -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {%- set L = data[0] -%}
+  {%- for o in range(304) -%}
+    {%- set ns.acc = 0 -%}
+    {%- for i in range(32) -%}{%- set ns.acc = ns.acc + ns.z[i] * L[0][o * 32 + i] -%}{%- endfor -%}
+    {%- set unused = ns.h.append(scaled(ns.acc, L[1][o], L[2][o]) | int) -%}
+  {%- endfor -%}
+  {%- for L in data[1:4] -%}
+    {%- set ns.next = [] -%}
+    {%- for o in range(L[4]) -%}
+      {%- for routes in L[6] -%}
+        {%- set ns.acc = 0 -%}
+        {%- for route in routes -%}
+          {%- for i in range(L[3]) -%}
+            {%- set ns.acc = ns.acc + ns.h[i * L[5] + route[0]] * L[0][(o * L[3] + i) * 16 + route[1]] -%}
+          {%- endfor -%}
+        {%- endfor -%}
+        {%- set unused = ns.next.append(scaled(ns.acc, L[1][o], L[2][o]) | int) -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- set ns.h = ns.next -%}
+  {%- endfor -%}
+  {%- set L = data[4] -%}
+  {%- for p in range(1024) -%}
+    {%- for o in range(3) -%}
+      {%- set ns.acc = 0 -%}
+      {%- for i in range(5) -%}{%- set ns.acc = ns.acc + ns.h[i * 1024 + p] * L[0][o * 5 + i] -%}{%- endfor -%}
+      {%- set shifted = (scaled(ns.acc, L[1][o], L[2][o], false) | int) + 32768 -%}
+      {%- set index = (shifted / 32) | int -%}
+      {%- set index = 0 if shifted < 0 else (2047 if index > 2047 else index) -%}
+      {%- set unused = ns.rgb.append(lut[index]) -%}
+    {%- endfor -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for i in range(3072) -%}{%- set unused = ns.rgb.append(0) -%}{%- endfor -%}
+  {%- for i in range(32) -%}{%- set unused = ns.z.append(0) -%}{%- endfor -%}
+{%- endif -%}
+
+{# A single stored DEFLATE block needs only Adler-32, not a compressor.
+   The fixed PNG envelope already contains its IHDR CRC and block length. #}
+{%- set ns.png = PNG_PREFIX_PLACEHOLDER -%}
+{%- for y in range(32) -%}
+  {%- set unused = ns.png.append(0) -%}
+  {%- set ns.b = (ns.b + ns.a) % 65521 -%}
+  {%- for byte in ns.rgb[y * 96:(y + 1) * 96] -%}
+    {%- set unused = ns.png.append(byte) -%}
+    {%- set ns.a = (ns.a + byte) % 65521 -%}
+    {%- set ns.b = (ns.b + ns.a) % 65521 -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- set adler = ns.b * 65536 + ns.a -%}
+{%- for place in [16777216,65536,256,1] -%}
+  {%- set unused = ns.png.append(((adler / place) | int) % 256) -%}
+{%- endfor -%}
+{# The string-to-int filter is signed-32-bit in llama.cpp; float preserves
+   the exact unsigned checksum before conversion back to an integer. #}
+{%- set crc = crc32(ns.png[37:]) | float | int -%}
+{%- for place in [16777216,65536,256,1] -%}
+  {%- set unused = ns.png.append(((crc / place) | int) % 256) -%}
+{%- endfor -%}
+
+{# Record the actual generated latent vector so random images are reproducible. #}
+{%- set hex = HEX_PLACEHOLDER -%}
+{%- set ns.text = [116,69,88,116] + TEXT_KEY_PLACEHOLDER -%}
+{%- for value in ns.z -%}
+  {%- set v = (value / 4096) | int -%}
+  {%- set v = v + 256 if v < 0 else v -%}
+  {%- set unused = ns.text.append(hex[(v / 16) | int]) -%}
+  {%- set unused = ns.text.append(hex[v % 16]) -%}
+{%- endfor -%}
+{%- set ns.png = ns.png + [0,0,0,79] + ns.text -%}
+{%- set crc = crc32(ns.text) | float | int -%}
+{%- for place in [16777216,65536,256,1] -%}
+  {%- set unused = ns.png.append(((crc / place) | int) % 256) -%}
+{%- endfor -%}
+{%- set ns.png = ns.png + PNG_END_PLACEHOLDER -%}
+
+{%- set alphabet = BASE64_PLACEHOLDER -%}
+URI_TOKENS_PLACEHOLDER
+{%- for i in range(0, ns.png | length, 3) -%}
+  {%- set a = ns.png[i] -%}
+  {%- set b = ns.png[i + 1] if i + 1 < ns.png | length else 0 -%}
+  {%- set c = ns.png[i + 2] if i + 2 < ns.png | length else 0 -%}
+  {%- set chars = [alphabet[(a / 4) | int], alphabet[(a % 4) * 16 + ((b / 16) | int)],
+                  alphabet[(b % 16) * 4 + ((c / 64) | int)] if i + 1 < ns.png | length else 61,
+                  alphabet[c % 64] if i + 2 < ns.png | length else 61] -%}
+  {%- for char in chars -%}{{- '<p' ~ ('000' ~ char)[-3:] ~ '>' -}}{%- endfor -%}
+{%- endfor -%}
+<p256>

@@ -1,0 +1,19 @@
+PASS: signed split-product scaling boundaries
+Rendered c0ffeebabe in 28.56s
+PASS: fixture 0 (c0ffeebabe)
+Rendered 82a46b4e893c75b8dddab3ec26439e49f9197d79c9bb64001ddf12ebb685a98a in 28.50s
+PASS: fixture 1 (82a46b4e893c75b8dddab3ec26439e49f9197d79c9bb64001ddf12ebb685a98a)
+Rendered cafef00d in 28.88s
+PASS: fixture 2 (cafef00d)
+Rendered deadbeef in 32.44s
+PASS: fixture 3 (deadbeef)
+Rendered ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff in 34.53s
+PASS: fixture 4 (ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+Rendered a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 in 31.71s
+PASS: fixture 5 (a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5)
+Rendered 0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f in 31.29s
+PASS: fixture 6 (0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f)
+Rendered 1234567890abcdef in 28.77s
+PASS: fixture 7 (1234567890abcdef)
+PASS: all 256 byte values across all output positions
+PASS: Exfil flower experiment

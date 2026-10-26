@@ -1,0 +1,9 @@
+{
+  "ctx-size": 8960,
+  "cache-type-k": "f16",
+  "cache-type-v": "f16",
+  "temp": 0,
+  "top-k": 1,
+  "top-p": 1,
+  "repeat-penalty": 1
+}

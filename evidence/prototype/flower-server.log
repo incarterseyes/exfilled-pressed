@@ -1,0 +1,25 @@
+0.00.000.064 I srv  llama_server: initializing ...
+0.00.059.813 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.059.980 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.00.061.313 I srv    load_model: loading model 'tmp/exfil/flower.gguf'
+0.00.063.790 I cmn          init: llama threadpool init, n_threads = 4
+0.00.064.173 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 8192, kv_unified = 'false'
+0.00.299.408 I srv  llama_server: model loaded
+0.00.299.413 I srv  llama_server: listening on http://127.0.0.1:18182
+0.08.704.914 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.08.704.931 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0
+0.08.938.586 I slot print_timing: id  0 | task 0 | prompt eval time =      24.38 ms /  3073 tokens (    0.01 ms per token, 126061.45 tokens per second)
+0.08.938.588 I slot print_timing: id  0 | task 0 |        eval time =     209.27 ms /  3073 tokens (    0.07 ms per token, 14679.32 tokens per second)
+0.08.938.589 I slot print_timing: id  0 | task 0 |       total time =     233.65 ms /  6146 tokens
+0.08.938.589 I slot print_timing: id  0 | task 0 |    graphs reused =       3061
+0.08.938.668 I slot      release: id  0 | task 0 | stop processing: n_tokens = 6145, truncated = 0
+0.57.146.864 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 1.000 (> 0.100 thold), f_keep = 0.500
+0.57.146.889 I slot launch_slot_: id  0 | task 3075 | processing task, is_child = 0
+0.57.146.898 W slot   operator(): id  0 | task 3075 | need to evaluate at least 1 token for each active slot (n_past = 3073, task.n_tokens() = 3073)
+0.57.146.899 W slot   operator(): id  0 | task 3075 | n_past was set to 3072
+0.57.359.547 I slot print_timing: id  0 | task 3075 | prompt eval time =       0.84 ms /     1 tokens (    0.84 ms per token,  1191.90 tokens per second)
+0.57.359.550 I slot print_timing: id  0 | task 3075 |        eval time =     211.81 ms /  3073 tokens (    0.07 ms per token, 14503.29 tokens per second)
+0.57.359.550 I slot print_timing: id  0 | task 3075 |       total time =     212.65 ms /  3074 tokens
+0.57.359.550 I slot print_timing: id  0 | task 3075 |    graphs reused =       6121
+0.57.359.633 I slot      release: id  0 | task 3075 | stop processing: n_tokens = 6145, truncated = 0
+3.12.266.685 I srv    operator(): operator(): cleaning up before exit...

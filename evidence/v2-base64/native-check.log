@@ -1,0 +1,22 @@
+PASS: signed split-product scaling boundaries
+Rendered c0ffeebabe in 34.07s
+PASS: fixture 0 (c0ffeebabe)
+Rendered 82a46b4e893c75b8dddab3ec26439e49f9197d79c9bb64001ddf12ebb685a98a in 33.94s
+PASS: fixture 1 (82a46b4e893c75b8dddab3ec26439e49f9197d79c9bb64001ddf12ebb685a98a)
+Rendered cafef00d in 34.23s
+PASS: fixture 2 (cafef00d)
+Rendered deadbeef in 34.30s
+PASS: fixture 3 (deadbeef)
+Rendered ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff in 33.57s
+PASS: fixture 4 (ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+Rendered a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 in 35.03s
+PASS: fixture 5 (a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5)
+Rendered 0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f in 33.86s
+PASS: fixture 6 (0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f)
+Rendered 1234567890abcdef in 33.46s
+PASS: fixture 7 (1234567890abcdef)
+PASS: random PNGs vary, reproduce exactly, and reject corruption
+Rendered random flower in 33.60s
+Rendered random flower in 34.08s
+PASS: ASCII transport and two native random flower calls
+PASS: Exfil flower experiment

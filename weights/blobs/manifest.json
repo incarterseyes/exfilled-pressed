@@ -1,0 +1,76 @@
+{
+  "act_shift": 12,
+  "scale_shift": 32,
+  "lut_n": 2048,
+  "lut_rsh": 5,
+  "lut_off": 32768,
+  "c0": 19,
+  "payload_bytes": 24135,
+  "payload_sha256": "d0333c3f21ca80dc714383b7f951b206ac83a84b290b1abdc2b01e6f88a2c2ce",
+  "sections": {
+    "FC_W": {
+      "offset": 0,
+      "length": 9728
+    },
+    "FC_S": {
+      "offset": 9728,
+      "length": 1216
+    },
+    "FC_B": {
+      "offset": 10944,
+      "length": 1216
+    },
+    "T0_W": {
+      "offset": 12160,
+      "length": 5776
+    },
+    "T0_S": {
+      "offset": 17936,
+      "length": 76
+    },
+    "T0_B": {
+      "offset": 18012,
+      "length": 76
+    },
+    "T1_W": {
+      "offset": 18088,
+      "length": 3040
+    },
+    "T1_S": {
+      "offset": 21128,
+      "length": 40
+    },
+    "T1_B": {
+      "offset": 21168,
+      "length": 40
+    },
+    "T2_W": {
+      "offset": 21208,
+      "length": 800
+    },
+    "T2_S": {
+      "offset": 22008,
+      "length": 20
+    },
+    "T2_B": {
+      "offset": 22028,
+      "length": 20
+    },
+    "OUT_W": {
+      "offset": 22048,
+      "length": 15
+    },
+    "OUT_S": {
+      "offset": 22063,
+      "length": 12
+    },
+    "OUT_B": {
+      "offset": 22075,
+      "length": 12
+    },
+    "TANH_LUT": {
+      "offset": 22087,
+      "length": 2048
+    }
+  }
+}

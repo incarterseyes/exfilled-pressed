@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# OS
+.DS_Store
+
+# Local output: builds, renders, and the downloaded llama.cpp release
+/tmp/
